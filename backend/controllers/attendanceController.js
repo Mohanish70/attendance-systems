@@ -1,23 +1,29 @@
-// attendanceController.js
+// backend/controllers/attendanceController.js
+const Attendance = require('../models/Attendance');
 
-// Function to get attendance records
-const getAttendance = async (req, res) => {
+// Check-in user
+const checkIn = async (req, res) => {
+  const { employeeId } = req.body;
+  const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
   try {
-    // Your logic for getting attendance
-    res.status(200).json({ message: 'Attendance records fetched successfully' });
+    const attendance = await Attendance.findOne({ employeeId, date });
+
+    if (attendance && attendance.checkInTime) {
+      return res.status(400).json({ message: 'Already checked in' });
+    }
+
+    if (!attendance) {
+      const newAttendance = new Attendance({ employeeId, checkInTime: new Date() });
+      await newAttendance.save();
+      return res.status(200).json({ message: 'Checked in successfully' });
+    }
+
+    attendance.checkInTime = new Date();
+    await attendance.save();
+    res.status(200).json({ message: 'Checked in successfully' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error during check-in:', error);
+    res.status(500).json({ message: 'Server error during check-in' });
   }
 };
-
-// Function to mark attendance
-const markAttendance = async (req, res) => {
-  try {
-    // Your logic for marking attendance
-    res.status(200).json({ message: 'Attendance marked successfully' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-module.exports = { getAttendance, markAttendance };

@@ -1,4 +1,4 @@
-require('dotenv').config(); // Ensure this is at the very top
+require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -14,29 +14,24 @@ const errorMiddleware = require('./middlewares/errorMiddleware');
 
 const app = express();
 
-// Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:3000', // Adjust as needed
+  origin: 'http://localhost:3000', 
   methods: 'GET,POST,PUT,DELETE',
   allowedHeaders: 'Content-Type,Authorization',
 }));
 app.use(morgan('dev'));
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', authMiddleware, attendanceRoutes);
 app.use('/api/reports', authMiddleware, reportRoutes);
 app.use('/api/employee', authMiddleware, employeeRoutes);
 app.use('/api/admin', authMiddleware, adminRoutes);
 
-// Health Check Route (Optional)
 app.get('/', (req, res) => res.send('API is running'));
 
-// Error handling middleware
 app.use(errorMiddleware);
 
-// Connect to MongoDB
 const mongoURI = process.env.MONGODB_URI;
 if (!mongoURI) {
   throw new Error('MONGODB_URI is not defined in .env file');
@@ -49,6 +44,5 @@ mongoose.connect(mongoURI, {
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

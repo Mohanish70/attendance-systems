@@ -1,4 +1,3 @@
-// backend/controllers/employeeController.js
 const Attendance = require('../models/Attendance');
 
 const getAttendanceHistory = async (req, res, next) => {
