@@ -1,29 +1,35 @@
-const Attendance = require('../models/Attendance');
+const Employee = require('../models/Employee'); // Ensure the path is correct
 
-const getAttendanceHistory = async (req, res, next) => {
+// Controller to get employee by ID
+const getEmployee = async (req, res) => {
   try {
-    const userId = req.user.id; // Assume `req.user.id` is set by authentication middleware
-    const attendanceRecords = await Attendance.find({ employeeId: userId }).sort({ date: -1 });
-    res.json(attendanceRecords);
-  } catch (err) {
-    next(err);
+    const employee = await Employee.findById(req.params.id);
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+    res.json(employee);
+  } catch (error) {
+    console.error('Error fetching employee:', error);
+    res.status(500).json({ message: 'Server error while fetching employee' });
   }
 };
 
-const getTotalHours = async (req, res, next) => {
+// Controller to create a new employee
+const createEmployee = async (req, res) => {
+  const { employeeId, name, email, role } = req.body;
+
+  if (!employeeId || !name || !email || !role) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
   try {
-    const userId = req.user.id; // Assume `req.user.id` is set by authentication middleware
-    const totalHours = await Attendance.aggregate([
-      { $match: { employeeId: mongoose.Types.ObjectId(userId) } },
-      { $group: { _id: null, totalHours: { $sum: '$hoursWorked' } } }
-    ]);
-    res.json({ totalHours: totalHours[0]?.totalHours || 0 });
-  } catch (err) {
-    next(err);
+    const newEmployee = new Employee({ employeeId, name, email, role });
+    await newEmployee.save();
+    res.status(201).json({ message: 'Employee created successfully', employee: newEmployee });
+  } catch (error) {
+    console.error('Error creating employee:', error);
+    res.status(500).json({ message: 'Server error while creating employee' });
   }
 };
 
-module.exports = {
-  getAttendanceHistory,
-  getTotalHours
-};
+module.exports = { getEmployee, createEmployee };

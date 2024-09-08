@@ -1,6 +1,5 @@
 const User = require('../models/User');
 
-// Fetch all users
 const getUsers = async (req, res, next) => {
   try {
     const users = await User.find();
@@ -10,7 +9,6 @@ const getUsers = async (req, res, next) => {
   }
 };
 
-// Create a new user
 const createUser = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
