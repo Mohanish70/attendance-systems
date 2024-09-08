@@ -1,19 +1,19 @@
-const jwt = require('jsonwebtoken');
-
 const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  console.log('Received Token:', token); // Log the received token
+  const authHeader = req.headers.authorization;
 
-  if (!token) return res.status(401).json({ message: 'No token provided' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  console.log('Token received:', token); // Debugging
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    req.user = decoded; // Attach user information to request
     next();
   } catch (error) {
-    console.error('JWT Error:', error.message); // Log the error message
-    res.status(401).json({ message: 'Invalid token' });
+    console.error('JWT verification failed:', error.message);
+    return res.status(401).json({ message: 'Invalid token' });
   }
 };
-
-module.exports = authMiddleware;

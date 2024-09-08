@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-// Dummy endpoints for testing
 router.get('/', (req, res) => {
   res.send('Reports route');
 });
